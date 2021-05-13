@@ -143,7 +143,7 @@ void OCI::Schema2::from_json( const nlohmann::json &j, ImageManifest::Layer &iml
   j.at( "digest" ).get_to( iml.digest );
 
   if ( j.find( "urls" ) != j.end() ) {
-    j.at( "urls" ).get_to( iml.digest );
+    j.at( "urls" ).get_to( iml.urls );
   }
 }
 

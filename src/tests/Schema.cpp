@@ -7,9 +7,10 @@
 //CMAKE_CPP_EXTRA=${SRC_LIB_DIR}/OCI/Schema1.cpp;${SRC_LIB_DIR}/OCI/Schema2.cpp
 // clang-format on
 
-
-// Sample schema below from https://docs.docker.com/registry/spec/manifest-v2-1/
 TEST_CASE( "Schema1" ) {
+  // The following json is taken: https://docs.docker.com/registry/spec/manifest-v2-1/#example-manifest
+  auto im_json = R"(
+{
    "name": "hello-world",
    "tag": "latest",
    "architecture": "amd64",
@@ -33,7 +34,7 @@ TEST_CASE( "Schema1" ) {
       },
       {
          "v1Compatibility": "{\"id\":\"e45a5af57b00862e5ef5782a9925979a02ba2b12dff832fd0991335f4a11e5c5\",\"parent\":\"31cbccb51277105ba3ae35ce33c22b69c9e3f1002e76e4c736a2e8ebff9d7b5d\",\"created\":\"2014-12-31T22:57:59.178729048Z\",\"container\":\"27b45f8fb11795b52e9605b686159729b0d9ca92f76d40fb4f05a62e19c46b4f\",\"container_config\":{\"Hostname\":\"8ce6509d66e2\",\"Domainname\":\"\",\"User\":\"\",\"Memory\":0,\"MemorySwap\":0,\"CpuShares\":0,\"Cpuset\":\"\",\"AttachStdin\":false,\"AttachStdout\":false,\"AttachStderr\":false,\"PortSpecs\":null,\"ExposedPorts\":null,\"Tty\":false,\"OpenStdin\":false,\"StdinOnce\":false,\"Env\":[\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"],\"Cmd\":[\"/bin/sh\",\"-c\",\"#(nop) CMD [/hello]\"],\"Image\":\"31cbccb51277105ba3ae35ce33c22b69c9e3f1002e76e4c736a2e8ebff9d7b5d\",\"Volumes\":null,\"WorkingDir\":\"\",\"Entrypoint\":null,\"NetworkDisabled\":false,\"MacAddress\":\"\",\"OnBuild\":[],\"SecurityOpt\":null,\"Labels\":null},\"docker_version\":\"1.4.1\",\"config\":{\"Hostname\":\"8ce6509d66e2\",\"Domainname\":\"\",\"User\":\"\",\"Memory\":0,\"MemorySwap\":0,\"CpuShares\":0,\"Cpuset\":\"\",\"AttachStdin\":false,\"AttachStdout\":false,\"AttachStderr\":false,\"PortSpecs\":null,\"ExposedPorts\":null,\"Tty\":false,\"OpenStdin\":false,\"StdinOnce\":false,\"Env\":[\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"],\"Cmd\":[\"/hello\"],\"Image\":\"31cbccb51277105ba3ae35ce33c22b69c9e3f1002e76e4c736a2e8ebff9d7b5d\",\"Volumes\":null,\"WorkingDir\":\"\",\"Entrypoint\":null,\"NetworkDisabled\":false,\"MacAddress\":\"\",\"OnBuild\":[],\"SecurityOpt\":null,\"Labels\":null},\"architecture\":\"amd64\",\"os\":\"linux\",\"Size\":0}\n"
-      },
+      }
    ],
    "schemaVersion": 1,
    "signatures": [
@@ -52,7 +53,20 @@ TEST_CASE( "Schema1" ) {
          "protected": "eyJmb3JtYXRMZW5ndGgiOjY2MjgsImZvcm1hdFRhaWwiOiJDbjAiLCJ0aW1lIjoiMjAxNS0wNC0wOFQxODo1Mjo1OVoifQ"
       }
    ]
+})"_json;
+
+  auto im = im_json.get< OCI::Schema1::ImageManifest >();
+
+  REQUIRE( im.name == "hello-world" );
+  REQUIRE( im.schemaVersion == 1 );
+  REQUIRE( im.architecture == "amd64" );
+  REQUIRE( im.tag == "latest" );
+  REQUIRE( im.fsLayers[ 0 ].blobSum == "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef" );
+  REQUIRE( im.fsLayers[ 1 ].blobSum == "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef" );
+  REQUIRE( im.fsLayers[ 2 ].blobSum == "sha256:cc8567d70002e957612902a8e985ea129d831ebe04057d88fb644857caa45d11" );
+  REQUIRE( im.fsLayers[ 3 ].blobSum == "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef" );
 }
+
 
 TEST_CASE( "Schema2" ) {
   auto ml_json = R"(

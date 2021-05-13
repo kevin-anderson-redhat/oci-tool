@@ -11,13 +11,22 @@ namespace OCI::Schema1 {
   struct ImageManifest {
     const std::string mediaType =
         "application/vnd.docker.distribution.manifest.v1+json"; // not part of the json object, this is part of the
+
+    struct fsLayer {
+	std::string blobSum;    // digest for fsLayer 
+    };
+
+    struct histEntry {
+	std::string v1Compatibility;    // digest for fsLayer 
+    };
+
                                                                 // interface
     std::string                                          name;  // image repo tag
     std::string                                          tag;   // image tag
     std::string                                          architecture; // arch for the image, info purposes only
-    std::vector< std::pair< std::string, std::string > > fsLayers; // blobSum digest of filesystem image layers. SHA256
-    std::vector< std::pair< std::string, std::string > > history;  // array of v1Compatibility strings
-    std::string                                          schemaVersion; // image manifest schema
+    std::vector< fsLayer >                               fsLayers; // blobSum digest of filesystem image layers. SHA256
+    std::vector< histEntry >                             history;  // array of v1Compatibility strings
+    std::uint16_t                                        schemaVersion = 0;    // image manifest schema
     std::string                                          raw_str; // local extension, raw string of entire JSON document
     std::string                                          originDomain;    // local extension
     std::string                                          requestedTarget; // local extension
@@ -44,9 +53,20 @@ namespace OCI::Schema1 {
   auto operator==( ImageManifest const &im1, ImageManifest const &im2 ) -> bool;
   auto operator!=( ImageManifest const &im1, ImageManifest const &im2 ) -> bool;
 
+  auto operator==( ImageManifest::fsLayer const &iml1, ImageManifest::fsLayer const &iml2 ) -> bool;
+  auto operator!=( ImageManifest::fsLayer const &iml1, ImageManifest::fsLayer const &iml2 ) -> bool;
+
+  auto operator==( ImageManifest::histEntry const &imh1, ImageManifest::histEntry const &imh2 ) -> bool;
+  auto operator!=( ImageManifest::histEntry const &imh1, ImageManifest::histEntry const &imh2 ) -> bool;
+
   void from_json( const nlohmann::json &j, ImageManifest &im );
+  void from_json( const nlohmann::json &j, ImageManifest::fsLayer &imfsl );
+  void from_json( const nlohmann::json &j, ImageManifest::histEntry &imh );
+
   void from_json( const nlohmann::json &j, SignedImageManifest &sim );
   void from_json( const nlohmann::json &j, SignedImageManifest::Signature &sims );
 
   void to_json( nlohmann::json &j, ImageManifest const &im );
+  void to_json( nlohmann::json &j, ImageManifest::fsLayer const &imfsl );
+  void to_json( nlohmann::json &j, ImageManifest::histEntry const &imh );
 } // namespace OCI::Schema1

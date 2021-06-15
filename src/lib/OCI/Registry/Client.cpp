@@ -844,6 +844,7 @@ auto OCI::Registry::Client::putManifest( Schema2::ImageManifest const &im, std::
 auto OCI::Registry::Client::tagList( const std::string &rsrc ) -> OCI::Tags {
   Tags retVal;
 
+  spdlog::trace( "OCI::Registry::Client::tagList rsrc={}", rsrc );
   auto location = "/v2/" + rsrc + "/tags/list";
   auto res      = cli_->Get( location.c_str(), authHeaders() );
 
@@ -866,6 +867,7 @@ auto OCI::Registry::Client::tagList( const std::string &rsrc, std::regex const &
   try {                            // FIXME: Depends on how we handle auth failures
     auto retVal = tagList( rsrc ); // Auth would be within tagList
 
+    spdlog::trace( "OCI::Registry::Client::tagList rsrc={}, regex", rsrc );
     retVal.tags.erase( std::remove_if( retVal.tags.begin(), retVal.tags.end(),
                                        [ re ]( std::string const &tag ) {
                                          std::smatch m;

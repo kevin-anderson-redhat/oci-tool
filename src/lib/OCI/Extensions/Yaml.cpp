@@ -178,6 +178,7 @@ std::mutex REGEX_MUTEX;
 auto       OCI::Extensions::Yaml::tagList( std::string const &rsrc ) -> OCI::Tags {
   OCI::Tags retVal;
 
+  spdlog::trace( "OCI::Extensions::Yaml::tagList" );
   // FIXME? without seperate method for tag list limiting would need to implement here
   if ( catalog_.tags.find( current_domain_ ) != catalog_.tags.end() and
        catalog_.tags.at( current_domain_ ).find( rsrc ) != catalog_.tags.at( current_domain_ ).end() ) {

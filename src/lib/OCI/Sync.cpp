@@ -1,4 +1,4 @@
-schedule thread fore <OCI/Sync.hpp>
+#include <OCI/Sync.hpp>
 #include <map>
 #include <spdlog/spdlog.h>
 #include <thread>
@@ -43,13 +43,13 @@ void OCI::Sync::repoSync( OCI::Catalog const &catalog, ProgressBars::BarGuard &s
   std::atomic< size_t > repo_thr_count = 0;
   auto                  repo_index     = 0;
 
-  spdlog::debug( "OCI::Sync::repoSync starting" );
   for ( auto const &repo : catalog.repositories ) {
     repo_thr_count++;
 
+    spdlog::debug( "OCI::Sync::repoSync backgroud start {}", repo );
     stm_->background( [ &repo_thr_count, &sync_bar_ref, &repo_index, &catalog_total, repo, this ]() {
       gobha::DelayedCall dec_count( [ &repo_thr_count, repo ]() {
-        spdlog::trace( "OCI::Sync::execute '{}' finished decrementing count", repo );
+        spdlog::trace( "OCI::Sync::repoSync.thread for repo '{}' finished decrementing count", repo );
         --repo_thr_count;
       } );
       execute( repo, copier_->src_->copy()->tagList( repo ).tags );
@@ -105,7 +105,9 @@ void OCI::Sync::repoSync( OCI::Catalog const &catalog, ProgressBars::BarGuard &s
 //  spdlog::debug( "OCI::Sync::execute completed all repos" );
 //}
 
-void OCI::Sync::execute( std::string const &rsrc ) { execute( rsrc, copier_->src_->copy()->tagList( rsrc ).tags ); }
+void OCI::Sync::execute( std::string const &rsrc ) { 
+  execute( rsrc, copier_->src_->copy()->tagList( rsrc ).tags ); 
+}
 
 void OCI::Sync::execute( std::string const &rsrc, std::vector< std::string > const &tags ) {
   auto sync_bar_ref = progress_bars_->push_back( getIndicator( tags.size(), rsrc, indicators::Color::magenta ) );

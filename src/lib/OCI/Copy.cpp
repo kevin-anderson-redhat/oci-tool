@@ -22,13 +22,16 @@ void OCI::Copy::execute( std::string const rsrc, std::string const target ) {
   ml_request.name            = rsrc;
   ml_request.requestedTarget = target;
 
+  spdlog::trace( "OCI::Copy::execute starting rsrc={}  target={}", rsrc, target );
   try {
+    spdlog::debug( "OCI::Copy::execute get ManifestList" );
     auto manifest_list = Manifest< Schema2::ManifestList >( src_->copy().get(), ml_request );
 
     switch ( manifest_list.schemaVersion ) {
     case 1: // Fall back to Schema1
     {
       Schema1::ImageManifest im_request;
+      spdlog::debug( "OCI::Copy::execute schemaVersion 1" );
 
       im_request.name            = rsrc;
       im_request.requestedTarget = target;
@@ -36,15 +39,17 @@ void OCI::Copy::execute( std::string const rsrc, std::string const target ) {
       auto image_manifest = Manifest< Schema1::ImageManifest >( src_->copy().get(), im_request );
 
       if ( not image_manifest.fsLayers.empty() ) {
-        spdlog::trace( "OCI::Copy Start Schema1 ImageManifest {}:{}", rsrc, target );
+        spdlog::trace( "OCI::Copy::execute Start Schema1 ImageManifest {}:{}", rsrc, target );
         execute( image_manifest );
-        spdlog::trace( "OCI::Copy Finish Schema1 ImageManifest {}:{}", rsrc, target );
+        spdlog::trace( "OCI::Copy::execute Finish Schema1 ImageManifest {}:{}", rsrc, target );
       }
     }
 
     break;
     case 2:
-      if ( not manifest_list.manifests.empty() ) {
+      if ( manifest_list.manifests.empty() ) {
+        spdlog::error( "OCI::Copy::execute empty manifest list" );
+      } else {
         spdlog::trace( "OCI::Copy Start Schema2 ManifestList {}:{}", rsrc, target );
         execute( manifest_list );
         spdlog::trace( "OCI::Copy Finish Schema2 ManifestList {}:{}", rsrc, target );

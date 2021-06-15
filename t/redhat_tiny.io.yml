@@ -1,0 +1,8 @@
+registry.redhat.io:
+  credentials:
+    username: keanders@redhat.com
+    password: Ein!Rh01
+  tag-options:
+    filter: ^(latest|v?(\d+\.?){2,3}(-\d+)?(-p\d)?)$
+  images:
+    openshift4/ose-baremetal-rhel7-operator:

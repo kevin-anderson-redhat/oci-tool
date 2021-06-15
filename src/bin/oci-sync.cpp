@@ -98,6 +98,8 @@ auto main( int argc, char **argv ) -> int {
     break;
   }
 
+  std::cerr << "Setting up spdlog" << std::endl;
+
   spdlog::flush_every( std::chrono::seconds( 1 ) );
   spdlog::set_pattern( "[%H:%M:%S] [%^%l%$] [thread %t] %v" );
 
@@ -106,16 +108,19 @@ auto main( int argc, char **argv ) -> int {
   std::string src_username;
   std::string src_password;
 
+  std::cerr << "Extracting src and dest protos" << std::endl;
   auto src_proto_itr  = src_arg.Get().find( ':' );
   auto dest_proto_itr = dest_arg.Get().find( ':' );
 
   if ( src_proto_itr == std::string::npos ) {
     std::cerr << "Images Source is not properly formated!" << std::endl;
     std::cerr << parser;
+    std::cerr.flush();
 
     return EXIT_FAILURE;
   }
 
+  std::cerr << "Validating dest" << std::endl;
   if ( dest_proto_itr == std::string::npos or dest_arg.Get().find( "yaml" ) != std::string::npos ) {
     // yaml as a proto is not a valid destination
     // valid distinations are
@@ -131,7 +136,9 @@ auto main( int argc, char **argv ) -> int {
     }
 
     std::cerr << parser;
+    std::cerr.flush();
 
+    spdlog::shutdown();
     return EXIT_FAILURE;
   }
 
@@ -149,11 +156,14 @@ auto main( int argc, char **argv ) -> int {
     destination = OCI::CLIENT_MAP.at( dest_proto )( dest_location, dest_username.Get(), dest_password.Get() );
   } catch ( std::runtime_error const &e ) {
     std::cerr << e.what() << '\n';
+    std::cerr.flush();
+    spdlog::shutdown();
     return EXIT_FAILURE;
   }
 
   // a 'resource', but without will use source which assumes _catalog is implemented or available
 
+  std::cerr << "Starting sync process" << std::endl;
   try {
     OCI::Sync sync{};
     if ( src_proto == "yaml" ) {
@@ -165,13 +175,18 @@ auto main( int argc, char **argv ) -> int {
     }
   } catch ( std::exception const &e ) { // Catch all, Doing this allows stack unwinding on any exception
     std::cerr << "Unhandled exception occured!! " << e.what() << std::endl;
+    std::cerr.flush();
 
+    spdlog::shutdown();
     return EXIT_FAILURE;
   } catch ( ... ) { // Catch anything that doesn't inherit from std::exception
     std::cerr << "Unhandled exception occured!! " << std::endl;
+    std::cerr.flush();
 
+    spdlog::shutdown();
     return EXIT_FAILURE;
   }
 
+  spdlog::shutdown();
   return EXIT_SUCCESS;
 }

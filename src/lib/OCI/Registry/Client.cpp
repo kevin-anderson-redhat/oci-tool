@@ -246,6 +246,7 @@ void OCI::Registry::Client::auth( httplib::Headers const &headers, std::string c
     client->set_logger( &http_logger );
 
     if ( not username_.empty() and not password_.empty() ) {
+      spdlog::debug( "OCI::Registry::Client::auth attempt setting basic_auth" );
       client->set_basic_auth( username_.c_str(), password_.c_str() );
     }
 
@@ -266,14 +267,16 @@ void OCI::Registry::Client::auth( httplib::Headers const &headers, std::string c
           spdlog::error( "OCI::Registry::Client::auth Failed: {}", j.dump( 2 ) );
         } else {
           j.get_to( ctr_ );
+          spdlog::info( "OCI::Registry::Client::auth found token.  expires_in: {}", ctr_.expires_in.count() );
           spdlog::debug(
-              "OCI::Registry::Client::auth recieved token: {} issued_at: {} expires_in: {}", ctr_.token,
-              std::chrono::duration_cast< std::chrono::seconds >( ctr_.issued_at.time_since_epoch() ).count(),
-              ctr_.expires_in.count() );
+              "OCI::Registry::Client::auth recieved token: {} issued_at: {}", ctr_.token,
+              std::chrono::duration_cast< std::chrono::seconds >( ctr_.issued_at.time_since_epoch() ).count()
+	      );
         }
       } break;
       case HTTP_CODE::Unauthorized:
         spdlog::error( "OCI::Registry::Client::auth Unauthorized {}/{}", domain, location );
+        spdlog::error( "OCI::Registry::Client::auth body: {}", result->body );
 
         break;
       case HTTP_CODE::Service_Unavail:
@@ -288,6 +291,7 @@ void OCI::Registry::Client::auth( httplib::Headers const &headers, std::string c
       }
     } else {
       // FIXME: This kills the application, should we have a return value so failures can be handled gracefully?
+      spdlog::error( "OCI::Registry::Client::auth Throwing auth recived NULL" );
       throw std::runtime_error( "OCI::Registry::Client::auth recieved NULL '" + location + "'" );
     }
   }
@@ -716,6 +720,7 @@ auto OCI::Registry::Client::fetchManifest( const std::string &mediaType, const s
     switch ( HTTP_CODE( res->status ) ) {
     case HTTP_CODE::Unauthorized:
       spdlog::warn( "OCI::Registry::Client::fetchManifest recieved HTTP_CODE::Unauthorized for '{}'", location );
+      spdlog::debug( "OCI::Registry::Client::fetchManifest Unauthorized body '{}'", res->body );
 
       if ( auth_retry_ ) {
         auth_retry_ = false;

@@ -1,4 +1,4 @@
-#include <OCI/Sync.hpp>
+schedule thread fore <OCI/Sync.hpp>
 #include <map>
 #include <spdlog/spdlog.h>
 #include <thread>
@@ -13,6 +13,8 @@ void OCI::Sync::execute( OCI::Extensions::Yaml *src, OCI::Base::Client *dest ) {
   for ( auto const &domain : src->domains() ) {
     auto const catalog = src->catalog( domain );
 
+    spdlog::debug( "OCI::Sync::execute starting repos for '{}'", domain );
+
     auto sync_bar_ref =
         progress_bars_->push_back( getIndicator( catalog.repositories.size(), domain, indicators::Color::cyan ) );
 
@@ -26,6 +28,7 @@ void OCI::Sync::execute( OCI::Base::Client *src, OCI::Base::Client *dest ) {
   copier_->src_  = src;
   copier_->dest_ = dest;
 
+  spdlog::debug( "OCI::Sync::execute constructing catalog" );
   auto const catalog = src->catalog();
   auto       sync_bar_ref =
       progress_bars_->push_back( getIndicator( catalog.repositories.size(), "Source Repos", indicators::Color::cyan ) );
@@ -40,6 +43,7 @@ void OCI::Sync::repoSync( OCI::Catalog const &catalog, ProgressBars::BarGuard &s
   std::atomic< size_t > repo_thr_count = 0;
   auto                  repo_index     = 0;
 
+  spdlog::debug( "OCI::Sync::repoSync starting" );
   for ( auto const &repo : catalog.repositories ) {
     repo_thr_count++;
 
@@ -112,6 +116,7 @@ void OCI::Sync::execute( std::string const &rsrc, std::vector< std::string > con
   for ( auto const &tag : tags ) {
     thread_count++;
 
+    spdlog::debug( "OCI::Sync::execute schedule thread for tag '{}'", tag );
     stm_->execute( [ &thread_count, &tag_index, &sync_bar_ref, rsrc, tag, total_tags, this ]() -> void {
       gobha::DelayedCall dec_count( [ &thread_count, rsrc, tag ]() {
         spdlog::trace( "OCI::Sync::execute '{}:{}' finished decrementing count", rsrc, tag );

@@ -1,0 +1,8 @@
+registry.redhat.io:
+  credentials:
+    username: 11009103|keanders-opentlc
+    password: eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJjNjlkYzQ0MzZjNDM0YjYwODE4OTc4YzcxNDU2OWYyZCJ9.qHVBlq8lLxwAkUHYtqFZdHYCAc5hKezbvVae8qbAMLEruDrxxgiDBC1ViNAFFM30MFZoX8UYshjKtNLpBS4z2oDfMTZJarYOzB6ssiWGZHSjuDlXSAuYtl8T5bQR5ZKNmdTgcQbphSGqeVqeA2f73uUAFVeXzWhZFSCfuNreOJ29-0bKuMEx-ODGTMnPtfMH-rOr5OS5OTuAxx6fb0IiLex8RnXMC9en2Hp41lnALG3GrEQ33Y-Q0M3qwBMBUCUpul5UwW69DaAL0qkrFIJOYjSns_iFEm_U7l9aKB1BcX3nNhszXzXDJd4O5h0WCLBwyEGKXJEPTVPFScSKsbDHS4SSwg5XZWQDe9X9Mh5TCmaDMmYkPItz3ieNS5hFFBjEGVn4JvXQkeIRLs-XEurDPr5AmBN-9Awuqp7I6umOA-N3it2_En2cAmX_ro4g11gJy-GInIOJWdcMN2oXYvGo_dnyoO6Hv15ITkdVWq_jSBKCkcy9J3g5v_AXN-xwNaiNVZvfrZVNSW4i3CeD_JAArEKMQcI7GGvmOCbrAMJ4ed1Wu983IxGAy0pH90DtL-ktX0urJJoWonOas3OQnKQR_XP56HtzmOUjBfMbiLv3OG_vJreaVYk25DI9OIQKpi2yMfD9xSUIAhQ8r81jEUwSvNhE7ol4UjhbwIrd7h44nMQ
+  tag-options:
+    filter: ^(latest|v?(\d+\.?){6,7}(-\d+)?(-p\d)?)$
+  images:
+    openshift4/ose-baremetal-rhel7-operator:
